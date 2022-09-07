@@ -58,7 +58,8 @@ def get_weather(region):
     temp = response["now"]["temp"] + u"\N{DEGREE SIGN}" + "C"
     # 风向
     wind_dir = response["now"]["windDir"]
-    return weather, temp, wind_dir
+    wind_scale = response["now"]["wind_scale"]
+    return weather, temp, wind_dir,wind_scale
  
  
 def get_birthday(birthday, year, today):
@@ -115,7 +116,7 @@ def get_ciba():
     return note_ch, note_en
  
  
-def send_message(to_user, access_token, region_name, weather, temp, wind_dir, note_ch, note_en):
+def send_message(to_user, access_token, region_name, weather, temp, wind_dir,wind_scale, note_ch, note_en):
     url = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={}".format(access_token)
     week_list = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"]
     year = localtime().tm_year
@@ -159,6 +160,10 @@ def send_message(to_user, access_token, region_name, weather, temp, wind_dir, no
             },
             "wind_dir": {
                 "value": wind_dir,
+                "color": get_color()
+            },
+            "wind_scale": {
+                "value": wind_scale,
                 "color": get_color()
             },
             "love_day": {
@@ -221,7 +226,7 @@ if __name__ == "__main__":
     users = config["user"]
     # 传入地区获取天气信息
     region = config["region"]
-    weather, temp, wind_dir = get_weather(region)
+    weather, temp, wind_dir,wind_scale = get_weather(region)
     note_ch = config["note_ch"]
     note_en = config["note_en"]
     if note_ch == "" and note_en == "":
@@ -229,5 +234,5 @@ if __name__ == "__main__":
         note_ch, note_en = get_ciba()
     # 公众号推送消息
     for user in users:
-        send_message(user, accessToken, region, weather, temp, wind_dir, note_ch, note_en)
+        send_message(user, accessToken, region, weather, temp, wind_dir,wind_scale, note_ch, note_en)
     os.system("pause")
